@@ -69,11 +69,17 @@ The Agents pane has two settings (plugin `userConfig`):
 | `theme` | `warp`, `midnight`, `mocha`, `light` | `warp` |
 | `background` | `#RRGGBB`, to match your terminal's background | empty (the theme's own) |
 
-Change them in `/config` (rows `subagent-crew.theme` and `subagent-crew.background`) or from a shell:
+Set them in `~/.claude/settings.json`:
 
-```sh
-echo '{"theme":"mocha","background":"#1e1e2e"}' | claude plugin configure subagent-crew --values-stdin
+```json
+{
+  "pluginConfigs": {
+    "subagent-crew@inline": { "options": { "theme": "mocha", "background": "#1e1e2e" } }
+  }
+}
 ```
+
+They may also show up as rows in `/config`. Neither route has been confirmed in a live session yet; if the pane keeps its default colors, open an issue.
 
 Start a new session to apply them. An unknown theme or a malformed `background` falls back to the defaults. The status line colors are not configurable yet.
 
