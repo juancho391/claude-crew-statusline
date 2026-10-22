@@ -2,5 +2,25 @@
   "name": "subagent-crew",
   "version": "0.1.0",
   "description": "A live pane of the subagents at work, led by an animated Clawd",
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "theme": {
+      "type": "string",
+      "title": "Pane theme",
+      "description": "Color preset for the Agents pane: warp (dark teal, matches Warp), midnight, mocha or light.",
+      "default": "warp",
+      "options": [
+        "warp",
+        "midnight",
+        "mocha",
+        "light"
+      ]
+    },
+    "background": {
+      "type": "string",
+      "title": "Pane background",
+      "description": "Optional #RRGGBB to match your terminal's background. Empty keeps the theme's own. Takes effect for new sessions.",
+      "default": ""
+    }
+  }
 }

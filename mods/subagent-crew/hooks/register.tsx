@@ -4,6 +4,8 @@ import type { EngineInterface, Register } from 'claude-code'
 import type { CrewMember, CrewStatus, CrewTodos } from '../types'
 import { clawdRows, NO_TIER, SPRITE_COLUMNS, TIERS } from './sprites'
 import type { Pose, Tier } from './sprites'
+import { THEMES, themeFrom } from './themes'
+import type { Theme } from './themes'
 
 const PANE = 'subagent-crew'
 const PROGRESS = 'report_progress'
@@ -12,16 +14,8 @@ const crew = atom({ plugin: 'subagent-crew', key: 'crew' } as const, [])
 const frame = atom({ plugin: 'subagent-crew', key: 'frame' } as const, 0)
 const project = atom({ plugin: 'subagent-crew', key: 'project' } as const, '')
 
-// Warp's own background (sampled from its gradient), with the status line's colors.
-const BG = '#06171D'
-const CARD = '#0B2129'
-const EDGE = '#163038'
-const TRACK = '#17323C'
-const TEXT = '#E6EDF3'
-const SUB = '#9AA7B4'
-const MUTED = '#6C7086'
-const MINT = '#7EE0B5'
-const CORAL = '#FF6B81'
+// Set from the plugin's userConfig when it registers.
+let T: Theme = THEMES.warp!
 
 const TICK_MS = 300
 const SYNC_EVERY = 4 // ticks between $.agent.list() syncs
@@ -111,7 +105,8 @@ function startTicking($: EngineInterface) {
   })
 }
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  T = themeFrom(options)
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'crew', description: 'Show the subagent crew pane' })
     // Subagents get no todo tools, so the pane offers its own: one call per step.
@@ -270,10 +265,10 @@ export const register: Register = on => {
     const shownLive = live.slice(0, room)
     const shownDone = finished.slice(0, Math.max(0, room - shownLive.length))
 
-    const card = (label: string, value: string, color = TEXT) => (
-      <Box flexGrow={1} borderStyle="round" borderColor={EDGE} backgroundColor={CARD} paddingX={1}>
+    const card = (label: string, value: string, color = T.TEXT) => (
+      <Box flexGrow={1} borderStyle="round" borderColor={T.EDGE} backgroundColor={T.CARD} paddingX={1}>
         <Text>
-          <Text color={SUB}>{label} </Text>
+          <Text color={T.SUB}>{label} </Text>
           <Text bold color={color}>
             {value}
           </Text>
@@ -285,18 +280,18 @@ export const register: Register = on => {
       const cells = textWidth
       if (m.todos && m.todos.total > 0) {
         const filled = Math.round((m.todos.done / m.todos.total) * cells)
-        return [<Text color={accent}>{'━'.repeat(filled)}</Text>, <Text color={TRACK}>{'━'.repeat(cells - filled)}</Text>]
+        return [<Text color={accent}>{'━'.repeat(filled)}</Text>, <Text color={T.TRACK}>{'━'.repeat(cells - filled)}</Text>]
       }
-      if (!isLive(m.status)) return [<Text color={m.status === 'completed' ? accent : CORAL}>{'━'.repeat(cells)}</Text>]
+      if (!isLive(m.status)) return [<Text color={m.status === 'completed' ? accent : T.CORAL}>{'━'.repeat(cells)}</Text>]
       // No todo list to measure: a glint sweeps along the track while it works.
       const glint = Math.max(4, Math.floor(cells / 5))
       const at = (n * 2) % (cells + glint) - glint
       const start = Math.max(0, at)
       const end = Math.min(cells, at + glint)
       return [
-        <Text color={TRACK}>{'━'.repeat(start)}</Text>,
+        <Text color={T.TRACK}>{'━'.repeat(start)}</Text>,
         <Text color={accent}>{'━'.repeat(Math.max(0, end - start))}</Text>,
-        <Text color={TRACK}>{'━'.repeat(cells - Math.max(end, start))}</Text>,
+        <Text color={T.TRACK}>{'━'.repeat(cells - Math.max(end, start))}</Text>,
       ]
     }
 
@@ -318,7 +313,7 @@ export const register: Register = on => {
         <Box key={m.id} flexDirection="column">
           <Box flexDirection="row">
             <Box flexDirection="column" marginRight={2}>
-              {clawdRows(tier.hat, pose, BG).map(runs => (
+              {clawdRows(tier.hat, pose, T.BG).map(runs => (
                 <Text>
                   {runs.map(run => (
                     <Text color={run.fg} backgroundColor={run.bg}>
@@ -331,52 +326,52 @@ export const register: Register = on => {
             <Box flexDirection="column" width={textWidth}>
               <Box flexDirection="row" justifyContent="space-between">
                 <Button key={m.id} plain onPress={() => void $.ui.view({ agentId: m.id })}>
-                  <Text bold color={isOn ? TEXT : SUB}>
+                  <Text bold color={isOn ? T.TEXT : T.SUB}>
                     {fit(m.description, textWidth - 2)}
                   </Text>
                 </Button>
-                <Text color={isOn ? tier.accent : MUTED}>{dot}</Text>
+                <Text color={isOn ? tier.accent : T.MUTED}>{dot}</Text>
               </Box>
               <Text>
                 {tier.word && <Text color={tier.accent}>{tier.word} </Text>}
-                <Text color={SUB}>
+                <Text color={T.SUB}>
                   {modelName(m.model)}
                   {m.effort ? ` · ${m.effort}` : ''}
                 </Text>
               </Text>
               <Box flexDirection="row" justifyContent="space-between">
-                <Text color={isOn ? TEXT : SUB}>{fit(step, Math.max(4, textWidth - stats.length - 1))}</Text>
-                <Text color={SUB}>{stats}</Text>
+                <Text color={isOn ? T.TEXT : T.SUB}>{fit(step, Math.max(4, textWidth - stats.length - 1))}</Text>
+                <Text color={T.SUB}>{stats}</Text>
               </Box>
               <Text>{bar(m, tier.accent)}</Text>
             </Box>
           </Box>
-          <Text color={EDGE}>{'─'.repeat(inner)}</Text>
+          <Text color={T.EDGE}>{'─'.repeat(inner)}</Text>
         </Box>
       )
     }
 
     return (
-      <Box flexDirection="column" backgroundColor={BG} width={width} minHeight={height} paddingX={1}>
-        <Text bold color={TEXT}>
+      <Box flexDirection="column" backgroundColor={T.BG} width={width} minHeight={height} paddingX={1}>
+        <Text bold color={T.TEXT}>
           Agents
         </Text>
-        <Text color={SUB}>{where || 'this session'}</Text>
+        <Text color={T.SUB}>{where || 'this session'}</Text>
         <Box flexDirection="row" columnGap={1}>
           {card('Tokens', tokens(totalTokens))}
           {card('Time', elapsed)}
-          {card('Agents', `${members.length - live.length}/${members.length}`, live.length ? MINT : TEXT)}
+          {card('Agents', `${members.length - live.length}/${members.length}`, live.length ? T.MINT : T.TEXT)}
         </Box>
 
         {members.length === 0 && (
           <Box marginTop={1}>
-            <Text color={MUTED}>no subagents yet — they show up here as soon as one starts</Text>
+            <Text color={T.MUTED}>no subagents yet — they show up here as soon as one starts</Text>
           </Box>
         )}
 
         {shownLive.length > 0 && (
           <Box marginTop={1}>
-            <Text bold color={MUTED}>
+            <Text bold color={T.MUTED}>
               RUNNING · {live.length}
             </Text>
           </Box>
@@ -385,7 +380,7 @@ export const register: Register = on => {
 
         {shownDone.length > 0 && (
           <Box marginTop={1}>
-            <Text bold color={MUTED}>
+            <Text bold color={T.MUTED}>
               DONE · {finished.length}
             </Text>
           </Box>
@@ -394,7 +389,7 @@ export const register: Register = on => {
 
         {members.length > 0 && (
           <Box marginTop={1}>
-            <Text color={MUTED}>enter on a title opens its transcript</Text>
+            <Text color={T.MUTED}>enter on a title opens its transcript</Text>
           </Box>
         )}
       </Box>
