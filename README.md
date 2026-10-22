@@ -8,10 +8,10 @@ Two small add-ons for [Claude Code](https://claude.com/claude-code):
 ## Quick install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.1/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.sh | sh
 ```
 
-This installs the tagged release `v0.2.1`. Needs `jq`. It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
+This installs the tagged release `v0.3.0`. Needs `jq` (macOS, Linux, WSL; Windows is below). It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
 
 | Option | Effect |
 |---|---|
@@ -21,6 +21,34 @@ This installs the tagged release `v0.2.1`. Needs `jq`. It backs up your `setting
 | `--uninstall` | Remove the files and the settings entries it added |
 
 Prefer to read it first? `curl -fsSL <url> -o install.sh`, inspect it, then `sh install.sh`.
+
+### Windows
+
+Open **PowerShell** (not CMD) and run:
+
+```powershell
+irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.ps1 | iex
+```
+
+With options, wrap it in a script block (the same pattern Claude Code's own installer uses):
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.ps1))) -Theme mocha -Background '#1e1e2e'
+```
+
+| Option | Effect |
+|---|---|
+| `-StatuslineOnly` / `-PaneOnly` | Install just one part |
+| `-Theme NAME` / `-Background '#RRGGBB'` | Set the pane colors while installing (see Pane colors) |
+| `-RefreshInterval N` | Seconds between status line refreshes (default 1; raise it if PowerShell's startup feels heavy) |
+| `-Ref main` | Install a different tag or branch |
+| `-Uninstall` | Remove the files and the settings entries it added |
+
+Needs Windows PowerShell 5.1 or newer (included with Windows 10 1809+) and no extra tools: no `jq`, no Git. Git Bash is optional; the commands it writes work from either shell. Your `settings.json` is backed up once, and the installer only adds and removes its own entries. If you use WSL, install inside it with the Linux command above instead.
+
+The status line runs `powershell -NoProfile -ExecutionPolicy Bypass -File ...` (the bypass applies to that one process only). If your organization enforces an execution policy with Group Policy, that flag is overridden and the scripts will not run.
+
+**Windows support is new:** the PowerShell scripts are checked byte for byte against the bash ones (same output for 262 status line cases and 42 hook cases) and the installer is tested on PowerShell 7, but it has not been run on a real Windows machine yet. If something misbehaves, please open an issue with your Windows and PowerShell versions.
 
 ## Install with an agent
 
@@ -78,7 +106,7 @@ Four themes: `warp` (default), `midnight`, `mocha`, `light`. Optionally set `bac
 **From the installer** (writes the plugin's settings for you):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.1/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
 ```
 
 **By hand** in `~/.claude/settings.json`:

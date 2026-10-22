@@ -1,7 +1,7 @@
 #!/bin/sh
 # Installer for claude-crew-statusline: a Claude Code status line and the subagent crew pane.
 #
-#   curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.1/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.sh | sh
 #   curl -fsSL .../install.sh | sh -s -- --statusline-only
 #   curl -fsSL .../install.sh | sh -s -- --pane-only
 #   curl -fsSL .../install.sh | sh -s -- --theme mocha --background '#1e1e2e'
@@ -9,12 +9,12 @@
 #   curl -fsSL .../install.sh | sh -s -- --uninstall
 #
 # Never overwrites settings.json: it backs it up once and merges with jq.
-# Environment: CREW_REF (branch or tag, default v0.2.1), CREW_SRC (local checkout, for testing).
+# Environment: CREW_REF (branch or tag, default v0.3.0), CREW_SRC (local checkout, for testing).
 
 set -eu
 
 REPO=juancho391/claude-crew-statusline
-REF=${CREW_REF:-v0.2.1}
+REF=${CREW_REF:-v0.3.0}
 CLAUDE="$HOME/.claude"
 SETTINGS="$CLAUDE/settings.json"
 BACKUP="$CLAUDE/settings.json.bak-crew-statusline"

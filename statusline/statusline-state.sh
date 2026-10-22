@@ -7,9 +7,10 @@ input=$(cat)
 dir="$HOME/.claude/statusline-state"
 mkdir -p "$dir"
 
-IFS='|' read -r sid tool msg < <(jq -r '[(.session_id // "default"), (.tool_name // ""), (.message // "")] | map(tostring | gsub("\\|"; " ")) | join("|")' <<<"$input")
+IFS='|' read -r sid tool msg < <(jq -r '[(.session_id // "default"), (.tool_name // ""), (.message // "")] | map(tostring | gsub("\\|"; " ")) | join("|")' <<<"$input" 2>/dev/null)
+[[ -n $sid ]] || sid=default # unparsable or empty input still records a state
 file="$dir/$sid"
-now=$(date +%s)
+now=${STATUSLINE_NOW:-$(date +%s)}
 
 case $event in
   prompt)

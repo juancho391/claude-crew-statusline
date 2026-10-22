@@ -19,6 +19,24 @@ This repo ships two independent parts. Install both unless the user asks for one
 
 `install.sh` at the repo root performs steps 1-6 below, is idempotent, and supports `--statusline-only`, `--pane-only`, `--theme NAME`, `--background '#RRGGBB'` and `--uninstall`. If the user wants specific pane colors, pass `--theme` and `--background` instead of editing settings by hand (themes: warp, midnight, mocha, light). From a clone, run `sh install.sh` (it reads the local files when `CREW_SRC=$PWD` is set; otherwise it downloads the repo). Then run the Verify section. The manual steps remain the reference if the script cannot be used.
 
+## Windows (native)
+
+On native Windows use `install.ps1` instead of `install.sh`; it needs only Windows PowerShell 5.1+ (no `jq`, no Git). It is idempotent, never overwrites `settings.json`, and supports `-StatuslineOnly`, `-PaneOnly`, `-Theme NAME`, `-Background '#RRGGBB'`, `-RefreshInterval N`, `-Ref` and `-Uninstall`. From a clone, in PowerShell:
+
+```powershell
+$env:CREW_SRC = (Get-Location).Path
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+Verify, and report the observed output:
+
+```powershell
+'{"session_id":"t","model":{"display_name":"Claude Test"},"context_window":{"used_percentage":42}}' | powershell -NoProfile -ExecutionPolicy Bypass -File "$HOME/.claude/statusline.ps1"
+Select-String -Path "$HOME/.claude/settings.json" -Pattern 'statusline.ps1','subagent-crew' | Select-Object -First 4
+```
+
+Then the user restarts Claude Code and runs `/crew`. WSL is Linux: use `install.sh` there. Windows support has not been run on real Windows yet; say so in the report if you could not verify the status line renders.
+
 ## Prerequisites
 
 Check each and report what is missing: `jq` (required), a 24-bit-color terminal (status line colors), Claude Code with plugin/mod support (for the pane).

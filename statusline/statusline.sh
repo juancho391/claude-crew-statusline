@@ -3,6 +3,7 @@
 # Reads the JSON payload Claude Code sends on stdin. Uses 24-bit color (Warp, iTerm2, Ghostty...).
 
 input=$(cat)
+now=${STATUSLINE_NOW:-$(date +%s)} # overridable so tests can pin the animation frame
 
 rgb() { printf '\033[38;2;%d;%d;%dm' "$1" "$2" "$3"; }
 RESET=$'\033[0m'
@@ -42,7 +43,7 @@ until_reset() { # epoch seconds or ISO string -> "2h13" / "3d"
   else
     ts=$(date -j -u -f '%Y-%m-%dT%H:%M:%S' "${ts%%.*}" +%s 2>/dev/null) || return
   fi
-  secs=$(( ts - $(date +%s) ))
+  secs=$(( ts - now ))
   (( secs <= 0 )) && return
   d=$(( secs / 86400 )); h=$(( secs % 86400 / 3600 )); m=$(( secs % 3600 / 60 ))
   if (( d > 0 )); then printf '%dd' "$d"
@@ -76,7 +77,6 @@ IFS='|' read -r sid model ctx_pct ctx_size ctx_used five five_reset week week_re
 
 # Activity, written by statusline-state.sh hooks. The status line re-runs every
 # second (refreshInterval), so the frame index is simply the current second.
-now=$(date +%s)
 state="" tool="" since=$now
 [[ -f $HOME/.claude/statusline-state/$sid ]] &&
   IFS='|' read -r state tool since <"$HOME/.claude/statusline-state/$sid"
