@@ -1,0 +1,6 @@
+{
+  "name": "subagent-crew",
+  "version": "0.1.0",
+  "description": "A live pane of the subagents at work, led by an animated Clawd",
+  "types": "./types/index.d.ts"
+}

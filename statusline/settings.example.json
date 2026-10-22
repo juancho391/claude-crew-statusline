@@ -1,0 +1,15 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0,
+    "refreshInterval": 1
+  },
+  "hooks": {
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "~/.claude/statusline-state.sh prompt", "timeout": 5 }] }],
+    "PreToolUse":       [{ "hooks": [{ "type": "command", "command": "~/.claude/statusline-state.sh pre-tool", "timeout": 5 }] }],
+    "PostToolUse":      [{ "hooks": [{ "type": "command", "command": "~/.claude/statusline-state.sh post-tool", "timeout": 5 }] }],
+    "Notification":     [{ "hooks": [{ "type": "command", "command": "~/.claude/statusline-state.sh notify", "timeout": 5 }] }],
+    "Stop":             [{ "hooks": [{ "type": "command", "command": "~/.claude/statusline-state.sh stop", "timeout": 5 }] }]
+  }
+}
