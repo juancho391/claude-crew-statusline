@@ -16,6 +16,7 @@ This installs the tagged release `v0.1.0`. Needs `jq`. It backs up your `setting
 | Option | Effect |
 |---|---|
 | `--statusline-only` / `--pane-only` | Install just one part |
+| `--theme NAME` / `--background '#RRGGBB'` | Set the pane colors while installing (see Pane colors) |
 | `--ref main` | Install a different tag or branch (for example the latest `main`) |
 | `--uninstall` | Remove the files and the settings entries it added |
 
@@ -62,14 +63,25 @@ Run `/crew` to open the pane. Subagents also get a `report_progress` tool so the
 
 ## Pane colors
 
-The Agents pane has two settings (plugin `userConfig`):
+Four themes: `warp` (default), `midnight`, `mocha`, `light`. Optionally set `background` to a `#RRGGBB` that matches your terminal.
 
-| Setting | Values | Default |
-|---|---|---|
-| `theme` | `warp`, `midnight`, `mocha`, `light` | `warp` |
-| `background` | `#RRGGBB`, to match your terminal's background | empty (the theme's own) |
+**From inside Claude Code** (takes effect immediately and is remembered):
 
-Set them in `~/.claude/settings.json`:
+```text
+/crew theme              list the themes
+/crew theme mocha        switch theme
+/crew theme reset        back to the configured theme
+/crew background #1e1e2e match your terminal's background
+/crew background reset   back to the theme's own
+```
+
+**From the installer** (writes the plugin's settings for you):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/main/install.sh | sh -s -- --ref main --theme mocha --background '#1e1e2e'
+```
+
+**By hand** in `~/.claude/settings.json`:
 
 ```json
 {
@@ -79,9 +91,7 @@ Set them in `~/.claude/settings.json`:
 }
 ```
 
-They may also show up as rows in `/config`. Neither route has been confirmed in a live session yet; if the pane keeps its default colors, open an issue.
-
-Start a new session to apply them. An unknown theme or a malformed `background` falls back to the defaults. The status line colors are not configurable yet.
+A choice made with `/crew` wins over the settings; `/crew theme reset` and `/crew background reset` hand control back. An unknown theme or a malformed `background` falls back to the defaults. The status line colors are not configurable yet.
 
 ## Layout
 

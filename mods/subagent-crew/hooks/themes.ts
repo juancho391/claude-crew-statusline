@@ -20,12 +20,19 @@ export const THEMES: Record<string, Theme> = {
   light: { BG: '#FAFAFA', CARD: '#F0F1F3', EDGE: '#D0D7DE', TRACK: '#DDE1E6', TEXT: '#1F2328', SUB: '#57606A', MUTED: '#8C959F', MINT: '#1A9E6B', CORAL: '#D1365A' },
 }
 
+export const THEME_NAMES = Object.keys(THEMES)
+
 const HEX = /^#[0-9a-fA-F]{6}$/
 
-/** The theme the plugin's userConfig picks; an unknown theme or a malformed background falls back to the defaults. */
-export function themeFrom(options: Readonly<Record<string, unknown>>): Theme {
-  const base = THEMES[String(options.theme)] ?? THEMES.warp!
-  const background = options.background
+export const isHexColor = (value: unknown): value is string => typeof value === 'string' && HEX.test(value)
 
-  return typeof background === 'string' && HEX.test(background) ? { ...base, BG: background } : base
+/** The name of the theme the options pick; an unknown or missing one is `warp`. */
+export const themeName = (options: Readonly<Record<string, unknown>>): string =>
+  typeof options.theme === 'string' && options.theme in THEMES ? options.theme : 'warp'
+
+/** The theme the options pick; a malformed background keeps the theme's own. */
+export function themeFrom(options: Readonly<Record<string, unknown>>): Theme {
+  const base = THEMES[themeName(options)]!
+
+  return isHexColor(options.background) ? { ...base, BG: options.background } : base
 }

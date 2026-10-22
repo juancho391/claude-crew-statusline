@@ -17,7 +17,7 @@ This repo ships two independent parts. Install both unless the user asks for one
 
 ## Shortcut
 
-`install.sh` at the repo root performs steps 1-6 below, is idempotent, and supports `--statusline-only`, `--pane-only` and `--uninstall`. From a clone, run `sh install.sh` (it reads the local files when `CREW_SRC=$PWD` is set; otherwise it downloads the repo). Then run the Verify section. The manual steps remain the reference if the script cannot be used.
+`install.sh` at the repo root performs steps 1-6 below, is idempotent, and supports `--statusline-only`, `--pane-only`, `--theme NAME`, `--background '#RRGGBB'` and `--uninstall`. If the user wants specific pane colors, pass `--theme` and `--background` instead of editing settings by hand (themes: warp, midnight, mocha, light). From a clone, run `sh install.sh` (it reads the local files when `CREW_SRC=$PWD` is set; otherwise it downloads the repo). Then run the Verify section. The manual steps remain the reference if the script cannot be used.
 
 ## Prerequisites
 

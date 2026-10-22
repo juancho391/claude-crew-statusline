@@ -4,6 +4,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.1.0/install.sh | sh
 #   curl -fsSL .../install.sh | sh -s -- --statusline-only
 #   curl -fsSL .../install.sh | sh -s -- --pane-only
+#   curl -fsSL .../install.sh | sh -s -- --theme mocha --background '#1e1e2e'
 #   curl -fsSL .../install.sh | sh -s -- --ref main
 #   curl -fsSL .../install.sh | sh -s -- --uninstall
 #
@@ -18,7 +19,9 @@ CLAUDE="$HOME/.claude"
 SETTINGS="$CLAUDE/settings.json"
 BACKUP="$CLAUDE/settings.json.bak-crew-statusline"
 PLUGIN_DIR='~/.claude/mods/subagent-crew'
-DO_STATUS=1 DO_PANE=1 UNINSTALL=0
+DO_STATUS=1 DO_PANE=1 UNINSTALL=0 THEME='' BACKGROUND=''
+PLUGIN_KEY='subagent-crew@inline'
+THEMES='warp midnight mocha light'
 
 say() { printf '%s\n' "$*"; }
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
@@ -28,6 +31,10 @@ while [ $# -gt 0 ]; do
     --uninstall) UNINSTALL=1 ;;
     --statusline-only) DO_PANE=0 ;;
     --pane-only) DO_STATUS=0 ;;
+    --theme) shift; [ $# -gt 0 ] || die '--theme needs a value'; THEME=$1
+      case " $THEMES " in *" $THEME "*) ;; *) die "unknown theme: $THEME (choose one of: $THEMES)" ;; esac ;;
+    --background) shift; [ $# -gt 0 ] || die '--background needs a value'; BACKGROUND=$1
+      printf '%s' "$BACKGROUND" | grep -Eq '^#[0-9a-fA-F]{6}$' || die "--background must be #RRGGBB, got: $BACKGROUND" ;;
     --ref) shift; [ $# -gt 0 ] || die '--ref needs a value'; REF=$1 ;;
     -h|--help) sed -n '2,11p' "$0" 2>/dev/null | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown option: $1" ;;
@@ -36,6 +43,7 @@ while [ $# -gt 0 ]; do
 done
 
 [ "$DO_STATUS" = 1 ] || [ "$DO_PANE" = 1 ] || die 'nothing to do: --statusline-only and --pane-only cancel out'
+if [ -n "$THEME$BACKGROUND" ] && [ "$DO_PANE" = 0 ]; then die '--theme and --background configure the pane; drop --statusline-only.'; fi
 command -v jq >/dev/null 2>&1 || die 'jq is required (brew install jq, or apt install jq), then retry.'
 
 mkdir -p "$CLAUDE"
@@ -66,9 +74,11 @@ if [ "$UNINSTALL" = 1 ]; then
   if [ "$DO_PANE" = 1 ]; then
     rm -rf "$CLAUDE/mods/subagent-crew"
     rmdir "$CLAUDE/mods" 2>/dev/null || true
-    edit_settings --arg dir "$PLUGIN_DIR" '
+    edit_settings --arg dir "$PLUGIN_DIR" --arg key "$PLUGIN_KEY" '
       (if .env.CLAUDE_CODE_PLUGIN_DIRS == $dir then del(.env.CLAUDE_CODE_PLUGIN_DIRS) else . end)
-      | (if .env == {} then del(.env) else . end)'
+      | (if .env == {} then del(.env) else . end)
+      | (if .pluginConfigs then del(.pluginConfigs[$key]) else . end)
+      | (if .pluginConfigs == {} then del(.pluginConfigs) else . end)'
   fi
   say 'Uninstalled. Restart Claude Code for it to take effect.'
   exit 0
@@ -113,6 +123,14 @@ if [ "$DO_PANE" = 1 ]; then
     say "Installed the crew pane files, but CLAUDE_CODE_PLUGIN_DIRS is already set to:"
     say "  $current"
     say "Not changing it. Add $PLUGIN_DIR to it yourself, then restart Claude Code."
+  fi
+  if [ -n "$THEME" ]; then
+    edit_settings --arg key "$PLUGIN_KEY" --arg v "$THEME" '.pluginConfigs[$key].options.theme = $v'
+    say "Pane theme: $THEME"
+  fi
+  if [ -n "$BACKGROUND" ]; then
+    edit_settings --arg key "$PLUGIN_KEY" --arg v "$BACKGROUND" '.pluginConfigs[$key].options.background = $v'
+    say "Pane background: $BACKGROUND"
   fi
 fi
 

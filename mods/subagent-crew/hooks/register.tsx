@@ -4,7 +4,7 @@ import type { EngineInterface, Register } from 'claude-code'
 import type { CrewMember, CrewStatus, CrewTodos } from '../types'
 import { clawdRows, NO_TIER, SPRITE_COLUMNS, TIERS } from './sprites'
 import type { Pose, Tier } from './sprites'
-import { THEMES, themeFrom } from './themes'
+import { isHexColor, THEME_NAMES, THEMES, themeFrom, themeName } from './themes'
 import type { Theme } from './themes'
 
 const PANE = 'subagent-crew'
@@ -16,6 +16,72 @@ const project = atom({ plugin: 'subagent-crew', key: 'project' } as const, '')
 
 // Set from the plugin's userConfig when it registers.
 let T: Theme = THEMES.warp!
+let configured: Readonly<Record<string, unknown>> = {}
+let current = 'warp'
+
+/** Colors come from userConfig; what `/crew theme` and `/crew background` saved in the store wins. */
+async function applyTheme($: EngineInterface) {
+  let saved: { theme?: unknown; background?: unknown } = {}
+  try {
+    saved = { theme: await $.store.get('theme'), background: await $.store.get('background') }
+  } catch {
+    // No store: the configured colors stand, and the pane still starts.
+  }
+  const options = {
+    ...configured,
+    ...(saved.theme == null ? {} : { theme: saved.theme }),
+    ...(saved.background == null ? {} : { background: saved.background }),
+  }
+  T = themeFrom(options)
+  current = themeName(options)
+  $.ui.invalidate('ui.render')
+}
+
+const themeList = () => THEME_NAMES.map(name => `  ${name}${name === current ? ' (current)' : ''}`).join('\n')
+
+async function crewCommand($: EngineInterface, args: string): Promise<{ text: string }> {
+  const [sub, value, ...rest] = args.trim().split(/\s+/).filter(Boolean)
+  if (!sub) {
+    await $.ui.open({ id: PANE, title: 'Agents' })
+
+    return { text: 'Agents pane opened.' }
+  }
+  if (sub === 'theme') {
+    if (!value) return { text: `Pane themes (/crew theme <name>, /crew theme reset):\n${themeList()}` }
+    if (value === 'reset') {
+      await $.store.delete('theme')
+      await applyTheme($)
+
+      return { text: `Theme reset to ${current}.` }
+    }
+    if (rest.length === 0 && THEME_NAMES.includes(value)) {
+      await $.store.set('theme', value)
+      await applyTheme($)
+
+      return { text: `Theme set to ${value}.` }
+    }
+
+    return { text: `Unknown theme "${[value, ...rest].join(' ')}". Available:\n${themeList()}` }
+  }
+  if (sub === 'background') {
+    if (value === 'reset' && rest.length === 0) {
+      await $.store.delete('background')
+      await applyTheme($)
+
+      return { text: 'Background reset.' }
+    }
+    if (rest.length === 0 && isHexColor(value)) {
+      await $.store.set('background', value)
+      await applyTheme($)
+
+      return { text: `Background set to ${value}.` }
+    }
+
+    return { text: 'Background must be #RRGGBB, or "reset".' }
+  }
+
+  return { text: 'Usage: /crew | /crew theme [name|reset] | /crew background <#RRGGBB|reset>' }
+}
 
 const TICK_MS = 300
 const SYNC_EVERY = 4 // ticks between $.agent.list() syncs
@@ -106,9 +172,14 @@ function startTicking($: EngineInterface) {
 }
 
 export const register: Register = (on, options) => {
+  configured = options
   T = themeFrom(options)
+  current = themeName(options)
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'crew', description: 'Show the subagent crew pane' })
+    await $.command.register({
+      name: 'crew',
+      description: 'Show the subagent crew pane; /crew theme <name> changes its colors',
+    })
     // Subagents get no todo tools, so the pane offers its own: one call per step.
     await $.tool.register({
       name: PROGRESS,
@@ -127,6 +198,7 @@ export const register: Register = (on, options) => {
       },
       isDeferred: false,
     })
+    await applyTheme($)
     await update($, project, () => e.cwd.split('/').filter(Boolean).pop() ?? '')
     void $.ui.open({ id: PANE, title: 'Agents' })
     if ((await read($, crew)).some(m => isLive(m.status))) startTicking($)
@@ -134,11 +206,9 @@ export const register: Register = (on, options) => {
     return next(e)
   })
 
-  on('command.run', { command: 'crew' }, async $ => {
-    await $.ui.open({ id: PANE, title: 'Agents' })
-
-    return { text: 'Agents pane opened.' }
-  })
+  on('command.run', { command: 'crew' }, ($, e) => crewCommand($, e.args)).catch(($, e, next) =>
+    next.called ? next(e) : { text: 'Could not change the pane colors.' },
+  )
 
   on('agent.spawn', async ($, e, next) => {
     const result = await next(e)
