@@ -19,3 +19,12 @@ if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
 else
   gh release create "$TAG" "$ASSET" --repo "$REPO" --title "$TAG" --generate-notes
 fi
+
+# A new asset can answer 404 for up to a minute or two; wait so the installer never falls back right after a release.
+URL="https://github.com/$REPO/releases/download/$TAG/claude-crew-statusline-$TAG.tar.gz"
+i=0
+while [ "$i" -lt 12 ]; do
+  [ "$(curl -s -o /dev/null -w '%{http_code}' -L "$URL")" = 200 ] && { echo "asset is live: $URL"; exit 0; }
+  i=$((i + 1)); sleep 10
+done
+echo "warning: asset not reachable after 2 minutes ($URL); the installer will fall back to the source archive until it is." >&2
