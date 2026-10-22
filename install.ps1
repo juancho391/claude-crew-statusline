@@ -1,7 +1,7 @@
 # Installer for claude-crew-statusline on Windows (PowerShell 5.1 or newer): a Claude Code
 # status line and the subagent crew pane. Counterpart of install.sh, which covers macOS, Linux and WSL.
 #
-#   irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.1/install.ps1 | iex
 #   & ([scriptblock]::Create((irm <url>))) -StatuslineOnly
 #   & ([scriptblock]::Create((irm <url>))) -PaneOnly
 #   & ([scriptblock]::Create((irm <url>))) -Theme mocha -Background '#1e1e2e'
@@ -9,7 +9,7 @@
 #   & ([scriptblock]::Create((irm <url>))) -Uninstall
 #
 # Never overwrites settings.json: it backs it up once and edits only its own entries.
-# Environment: CREW_REF (branch or tag, default v0.3.0), CREW_SRC (local checkout, for testing).
+# Environment: CREW_REF (branch or tag, default v0.3.1), CREW_SRC (local checkout, for testing).
 # Keep this file ASCII only: Windows PowerShell 5.1 reads BOM-less files as ANSI.
 
 param(
@@ -29,7 +29,7 @@ try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::S
 $Repo = 'juancho391/claude-crew-statusline'
 $PluginKey = 'subagent-crew@inline'
 $Themes = 'warp', 'midnight', 'mocha', 'light'
-if (-not $Ref) { if ($env:CREW_REF) { $Ref = $env:CREW_REF } else { $Ref = 'v0.3.0' } }
+if (-not $Ref) { if ($env:CREW_REF) { $Ref = $env:CREW_REF } else { $Ref = 'v0.3.1' } }
 
 function Say($m) { Write-Host $m }
 

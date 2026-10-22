@@ -8,10 +8,10 @@ Two small add-ons for [Claude Code](https://claude.com/claude-code):
 ## Quick install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.1/install.sh | sh
 ```
 
-This installs the tagged release `v0.3.0`. Needs `jq` (macOS, Linux, WSL; Windows is below). It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
+This installs the tagged release `v0.3.1`. Needs `jq` (macOS, Linux, WSL; Windows is below). It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
 
 | Option | Effect |
 |---|---|
@@ -27,13 +27,13 @@ Prefer to read it first? `curl -fsSL <url> -o install.sh`, inspect it, then `sh 
 Open **PowerShell** (not CMD) and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.1/install.ps1 | iex
 ```
 
 With options, wrap it in a script block (the same pattern Claude Code's own installer uses):
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.ps1))) -Theme mocha -Background '#1e1e2e'
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.1/install.ps1))) -Theme mocha -Background '#1e1e2e'
 ```
 
 | Option | Effect |
@@ -106,7 +106,7 @@ Four themes: `warp` (default), `midnight`, `mocha`, `light`. Optionally set `bac
 **From the installer** (writes the plugin's settings for you):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.0/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.3.1/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
 ```
 
 **By hand** in `~/.claude/settings.json`:
