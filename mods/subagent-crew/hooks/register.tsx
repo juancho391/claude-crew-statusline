@@ -2,8 +2,11 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { CrewMember, CrewStatus, CrewTodos } from '../types'
-import { clawdRows, NO_TIER, SPRITE_COLUMNS, TIERS } from './sprites'
-import type { Pose, Tier } from './sprites'
+import { clock, isLive, modelName, shortTool, tierOf, tokens } from './format'
+import { graphicalPane } from './graphical'
+import type { GraphicalElements } from './graphical'
+import { clawdRows, SPRITE_COLUMNS } from './sprites'
+import type { Pose } from './sprites'
 import { isHexColor, THEME_NAMES, THEMES, themeFrom, themeName } from './themes'
 import type { Theme } from './themes'
 
@@ -87,29 +90,8 @@ const TICK_MS = 300
 const SYNC_EVERY = 4 // ticks between $.agent.list() syncs
 const ROWS_PER_AGENT = 6 // a 5-row sprite beside 4 text lines, and a rule
 
-const isLive = (status: CrewStatus) => status === 'running' || status === 'waiting'
-
-const tierOf = (effort?: string): Tier => (effort && TIERS[effort]) || NO_TIER
-
-/** `claude-haiku-5-5` -> `Haiku 5.5`; anything else is shown as given. */
-const modelName = (id: string) => {
-  const m = /claude-([a-z]+)-(\d+)(?:-(\d+))?/.exec(id)
-  if (!m) return id
-  return `${m[1]![0]!.toUpperCase()}${m[1]!.slice(1)} ${m[2]}${m[3] ? `.${m[3]}` : ''}`
-}
-
-const tokens = (n: number) =>
-  n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}k` : `${n}`
-
-const clock = (ms: number) => {
-  const s = Math.max(0, Math.floor(ms / 1000))
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
-
 const fit = (text: string, width: number) =>
   text.length > width ? `${text.slice(0, Math.max(0, width - 1))}…` : text
-
-const shortTool = (tool: string) => (tool.startsWith('mcp__') ? tool.split('__').pop() ?? tool : tool)
 
 const fromAgentStatus = (status: string): CrewStatus | undefined => {
   if (status === 'running' || status === 'pending') return 'running'
@@ -330,6 +312,22 @@ export const register: Register = (on, options) => {
     const firstStart = Math.min(...(live.length ? live : members).map(m => m.startedAt))
     const lastEnd = live.length ? now : Math.max(...members.map(m => m.endedAt ?? now))
     const elapsed = members.length ? clock(lastEnd - firstStart) : '0:00'
+
+    // Proportional-font surfaces get vector drawings: character-drawn bars and sprites break there.
+    if (e.surface !== 'terminal') {
+      return graphicalPane($.ui.resolve(e) as unknown as GraphicalElements, {
+        members,
+        live,
+        finished,
+        totalTokens,
+        elapsed,
+        now,
+        frame: n,
+        where,
+        theme: T,
+        view: id => void $.ui.view({ agentId: id }),
+      })
+    }
 
     const room = Math.max(1, Math.floor((height - 7) / ROWS_PER_AGENT))
     const shownLive = live.slice(0, room)

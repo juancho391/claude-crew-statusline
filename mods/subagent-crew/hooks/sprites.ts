@@ -84,3 +84,24 @@ export function clawdRows(hat: HatName, pose: Pose, background: string): Run[][]
 
   return rows
 }
+
+/**
+ * Clawd as an SVG for the graphical surfaces: one rect per run of same-colored pixels, empty pixels
+ * transparent, `px` CSS pixels per pixel. A vector image scales cleanly where half-block text cannot.
+ */
+export function clawdSvg(hat: Tier['hat'], pose: Pose, px: number): string {
+  const pixels = [...HATS[hat], ...BODY[pose]]
+  const rects: string[] = []
+  pixels.forEach((row, y) => {
+    for (let x = 0; x < SPRITE_COLUMNS; ) {
+      const code = row[x] ?? '.'
+      const fill = PALETTE[code]
+      let end = x + 1
+      while (end < SPRITE_COLUMNS && (row[end] ?? '.') === code) end++
+      if (fill !== undefined) rects.push(`<rect x="${x}" y="${y}" width="${end - x}" height="1" fill="${fill}"/>`)
+      x = end
+    }
+  })
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SPRITE_COLUMNS} ${pixels.length}" width="${SPRITE_COLUMNS * px}" height="${pixels.length * px}" shape-rendering="crispEdges">${rects.join('')}</svg>`
+}
