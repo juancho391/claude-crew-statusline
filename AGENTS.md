@@ -15,6 +15,10 @@ This repo ships two independent parts. Install both unless the user asks for one
 - The commands below assume the repo root as the working directory and `~/.claude` as the Claude Code config dir.
 - Name any step you cannot perform instead of skipping it.
 
+## Shortcut
+
+`install.sh` at the repo root performs steps 1-6 below, is idempotent, and supports `--statusline-only`, `--pane-only` and `--uninstall`. From a clone, run `sh install.sh` (it reads the local files when `CREW_SRC=$PWD` is set; otherwise it downloads the repo). Then run the Verify section. The manual steps remain the reference if the script cannot be used.
+
 ## Prerequisites
 
 Check each and report what is missing: `jq` (required), a 24-bit-color terminal (status line colors), Claude Code with plugin/mod support (for the pane).

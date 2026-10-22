@@ -5,6 +5,22 @@ Two small add-ons for [Claude Code](https://claude.com/claude-code):
 - **Status line** — model, an animated activity indicator (thinking, writing, running, delegating, needs you), and color-coded bars for context window, 5-hour session and weekly limits.
 - **Subagent crew pane** — a live "Agents" pane showing each subagent as a pixel-art Clawd whose hat reflects its effort level, with tokens, elapsed time, tool count and todo progress.
 
+## Quick install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/main/install.sh | sh
+```
+
+Needs `jq`. It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
+
+| Option | Effect |
+|---|---|
+| `--statusline-only` / `--pane-only` | Install just one part |
+| `--ref v0.1.0` | Install a tag or branch instead of `main` |
+| `--uninstall` | Remove the files and the settings entries it added |
+
+Prefer to read it first? `curl -fsSL <url> -o install.sh`, inspect it, then `sh install.sh`.
+
 ## Install with an agent
 
 Paste into Claude Code (or any coding agent) from a clone of this repo:
