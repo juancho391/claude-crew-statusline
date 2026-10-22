@@ -8,10 +8,10 @@ Two small add-ons for [Claude Code](https://claude.com/claude-code):
 ## Quick install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.1.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.0/install.sh | sh
 ```
 
-This installs the tagged release `v0.1.0`. Needs `jq`. It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
+This installs the tagged release `v0.2.0`. Needs `jq`. It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
 
 | Option | Effect |
 |---|---|
@@ -78,7 +78,7 @@ Four themes: `warp` (default), `midnight`, `mocha`, `light`. Optionally set `bac
 **From the installer** (writes the plugin's settings for you):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/main/install.sh | sh -s -- --ref main --theme mocha --background '#1e1e2e'
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.0/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
 ```
 
 **By hand** in `~/.claude/settings.json`:
