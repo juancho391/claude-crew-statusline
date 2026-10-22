@@ -8,10 +8,10 @@ Two small add-ons for [Claude Code](https://claude.com/claude-code):
 ## Quick install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.1/install.sh | sh
 ```
 
-This installs the tagged release `v0.2.0`. Needs `jq`. It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
+This installs the tagged release `v0.2.1`. Needs `jq`. It backs up your `settings.json` once and merges into it (never overwrites). Options, passed after `sh -s --`:
 
 | Option | Effect |
 |---|---|
@@ -78,7 +78,7 @@ Four themes: `warp` (default), `midnight`, `mocha`, `light`. Optionally set `bac
 **From the installer** (writes the plugin's settings for you):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.0/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
+curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.1/install.sh | sh -s -- --theme mocha --background '#1e1e2e'
 ```
 
 **By hand** in `~/.claude/settings.json`:
@@ -99,6 +99,10 @@ A choice made with `/crew` wins over the settings; `/crew theme reset` and `/cre
 statusline/            status line script, hook helper, settings example
 mods/subagent-crew/    the pane plugin (hooks, sprites, tests, types)
 ```
+
+## Releasing
+
+Maintainers: bump `version` in `mods/subagent-crew/.claude-plugin/plugin.json`, change the pinned tag in `install.sh` and this README, commit, tag (`git tag -a vX.Y.Z -m vX.Y.Z`), push the branch and the tag, then run `scripts/release.sh vX.Y.Z`. It publishes a GitHub Release with the repo archive as an asset, which is what the installer downloads and what GitHub counts as downloads (`gh api repos/juancho391/claude-crew-statusline/releases --jq '.[] | "\(.tag_name) \(.assets[].download_count)"'`).
 
 ## License
 

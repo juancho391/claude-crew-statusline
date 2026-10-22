@@ -1,7 +1,7 @@
 #!/bin/sh
 # Installer for claude-crew-statusline: a Claude Code status line and the subagent crew pane.
 #
-#   curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.0/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/juancho391/claude-crew-statusline/v0.2.1/install.sh | sh
 #   curl -fsSL .../install.sh | sh -s -- --statusline-only
 #   curl -fsSL .../install.sh | sh -s -- --pane-only
 #   curl -fsSL .../install.sh | sh -s -- --theme mocha --background '#1e1e2e'
@@ -9,12 +9,12 @@
 #   curl -fsSL .../install.sh | sh -s -- --uninstall
 #
 # Never overwrites settings.json: it backs it up once and merges with jq.
-# Environment: CREW_REF (branch or tag, default v0.2.0), CREW_SRC (local checkout, for testing).
+# Environment: CREW_REF (branch or tag, default v0.2.1), CREW_SRC (local checkout, for testing).
 
 set -eu
 
 REPO=juancho391/claude-crew-statusline
-REF=${CREW_REF:-v0.2.0}
+REF=${CREW_REF:-v0.2.1}
 CLAUDE="$HOME/.claude"
 SETTINGS="$CLAUDE/settings.json"
 BACKUP="$CLAUDE/settings.json.bak-crew-statusline"
@@ -90,9 +90,20 @@ if [ -n "${CREW_SRC:-}" ]; then
   SRC=$CREW_SRC
 else
   command -v curl >/dev/null 2>&1 || die 'curl is required.'
-  say "Downloading $REPO@$REF"
-  curl --proto '=https' --proto-redir '=https' -fsSL "https://codeload.github.com/$REPO/tar.gz/$REF" -o "$TMP/src.tgz" \
-    || die "could not download $REPO@$REF (check the ref name and your connection)."
+  fetch() { curl --proto '=https' --proto-redir '=https' -fsSL "$1" -o "$TMP/src.tgz"; }
+  got=0
+  # A tagged release ships its own archive as a release asset (GitHub counts those downloads);
+  # a branch, or a tag without the asset, comes from the plain source archive.
+  case $REF in
+    v[0-9]*)
+      say "Downloading release $REF"
+      fetch "https://github.com/$REPO/releases/download/$REF/claude-crew-statusline-$REF.tar.gz" 2>/dev/null && got=1 ;;
+  esac
+  if [ "$got" = 0 ]; then
+    say "Downloading $REPO@$REF"
+    fetch "https://codeload.github.com/$REPO/tar.gz/$REF" \
+      || die "could not download $REPO@$REF (check the ref name and your connection)."
+  fi
   mkdir "$TMP/src" && tar -xzf "$TMP/src.tgz" -C "$TMP/src" --strip-components=1 || die 'could not unpack the download.'
   SRC=$TMP/src
 fi
