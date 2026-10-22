@@ -1,6 +1,6 @@
 {
   "name": "subagent-crew",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A live pane of the subagents at work, led by an animated Clawd",
   "author": {
     "name": "juancho391",
